@@ -126,7 +126,7 @@ def read_book(stdscr,filename: str):
     chapregister = {}
     validchars = ["#","$","%","+","-","@"]
     recoverdoc = None
-    #Finding chapters
+    #Validating syntax
     for bline in book:
         linc += 1
         if bline[0] not in validchars:
@@ -145,6 +145,7 @@ def read_book(stdscr,filename: str):
             chapregister[" ".join(bline.split(" ")[1:])] = linc
     linc = 0
     textlist = []
+    chapregister = []
     activefg = 8
     for bline in book:
         if bline[0] == "+":
@@ -169,6 +170,8 @@ def read_book(stdscr,filename: str):
                     activefg = int(newfg)
                 except:
                     displaymsg(stdscr,["Syntax Error: Invalid colour"])
+            elif bline[1:9] == "register":
+                textlist.append({"data":bline[10:],"special":"putchapter"})#Telling interpreter to register a new chapter
             linc -= 1
         elif bline[0] == "@":
             textlist.append({"data":bline[1:],"cen":False,"cl":activefg,"appendr":True})#New entry for text but telling interpreter to remove formatting
@@ -192,6 +195,9 @@ def read_book(stdscr,filename: str):
                 page += 1
                 lpage = 0
                 activeopage = []
+            elif instruction["special"] == "putchapter":
+                chapregister.append((page,instruction["data"]))#Tuple in structure of (page,name)
+                continue#DO NOT increment local page
         else:
             activeopage.append(instruction)
         lpage += 1
@@ -201,10 +207,11 @@ def read_book(stdscr,filename: str):
             pagelist.append(activeopage)
             activeopage = []
     del lpage
-    del textlist
+    del textlist#Freeing up memory
     page = 0
    
     #print(pagelist)
+    #print(chapregister)
     #input()
     while True:
         x,y = os.get_terminal_size()
@@ -239,13 +246,23 @@ def read_book(stdscr,filename: str):
             #llinc += 1
         stdscr.addstr(0,0,f"Reading {config['title']} by {config['publisher']}")
         rectangle(stdscr,1,0,y-2,x-1)
-        stdscr.addstr(y-1,0,f"Page: {page}")
+        stdscr.addstr(y-1,0,f"Page: {page+1}/{len(pagelist)} ({round((page+1)/len(pagelist)*100,2)}%)")#+1 for user friendliness
         stdscr.refresh()
         ch = stdscr.getch()
         if ch == curses.KEY_LEFT and page> 0:
             page -= 1
         elif ch == curses.KEY_RIGHT and page < len(pagelist)-1:
             page += 1
+        elif ch == curses.KEY_BACKSPACE:
+            stdscr.erase()
+            return
+        elif ch == 103:#g
+            if len(chapregister) > 0:
+                stdscr.erase()
+                gtc = displayops(stdscr,[f"{c[1]} (Page {c[0]+1})" for c in chapregister],"Please choose a chapter")
+                page = gtc
+            else:
+                displaymsg(stdscr,["this book has no chapters."])
         stdscr.erase()
 
 def displayops(stdscr,options: list,title="Please choose an option") -> int:
