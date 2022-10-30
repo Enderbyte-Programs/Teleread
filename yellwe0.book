@@ -1,0 +1,19 @@
+title=Yellwe Book 0
+publisher=Kelsey Rahim
+date=2017
+%startdata
+$register Start
+#This book was typed by Enderbyte09 by permission
+--Yellwe Book 0
++(c) 2017 Kelsey Rahim
+$FG 161
++Warning! This book is presented how it was originally typed (by a 6-year-old)
+$FG reset
+%pagebreak
+$register Chapter 1
+--Chapter 1
++Yellwe wants to be a queen. She buys a castle. She buys a costume. She buys a maid. She buys a throne. Now she is a real queen.
+%pagebreak
+$register End
+--The End
+%pagebreak
