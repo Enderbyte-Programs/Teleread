@@ -5,6 +5,7 @@ import os
 from time import sleep
 import random
 from textwrap import wrap
+import json
 
 def cursestransition(stdscr,func_to_call,args=(),type=0):
     block = "█"
@@ -82,7 +83,21 @@ def cursesinput(stdscr,prompt: str):
     message = box.gather()
     return message
 
+def updateappdata():
+    global LIBRARY
+    global APPDATA
+    global APPDATADIR
+    APPDATA["library"] = LIBRARY
+    with open(APPDATADIR,"w+") as f:
+        f.write(json.dumps(APPDATA))
+
+def add2library(name):
+    global LIBRARY
+    LIBRARY.append(name)
+    updateappdata()
+
 def read_book(stdscr,filename: str):
+    global LIBRARY
     try:
         with open(filename) as f:
             data = f.read()
@@ -115,6 +130,10 @@ def read_book(stdscr,filename: str):
     except Exception as e:
         displaymsg(stdscr,["Book Init Error",filename,str(e)])
         return 1
+    if filename not in LIBRARY:
+        stdscr.erase()
+        if askyesno(stdscr,"You have not read this book before. Do you want to add it to your library?"):
+            add2library(filename)
     cursestransition(stdscr,donothing,type=1)
     stdscr.erase()
     stdscr.addstr(0,0,f"Loading {config['title']}")
@@ -295,20 +314,70 @@ def displayops(stdscr,options: list,title="Please choose an option") -> int:
             selected += 1
         stdscr.erase()
 
+def askyesno(stdscr,title: str) -> int:
+    result = displayops(stdscr,["Yes","No"],title)
+    if result == 0:
+        return True
+    else:
+        return False
+
+def loadlibrary(stdscr,library):
+    if len(library) == 0:
+        displaymsg(stdscr,["You have no books in your library"])
+
 def main(stdscr):
+    global LIBRARY
+    global APPDATA
+    global APPDATADIR
     curses.start_color()
     curses.use_default_colors()
     for i in range(0, curses.COLORS):
         curses.init_pair(i + 1, i, -1)
+    APPDATADIR = os.path.expanduser("~/.local/share/teleread.json")
+    if not os.path.isfile(APPDATADIR):
+        with open(APPDATADIR,"w+") as f:
+            f.write(json.dumps({"library":[]}))
+            APPDATA = {}
+            LIBRARY = []
+    else:
+        with open(APPDATADIR) as f:
+            APPDATA = json.load(f)
+            LIBRARY = APPDATA["library"]
     while True:
-        op = displayops(stdscr,["Read Book","Read Example Book","Quit"],"Teleread 0.0.1-alpha")
-        if op == 2:
+        op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit"],"Teleread 0.2")
+        if op == 3:
             cursestransition(stdscr,sys.exit,type=0)
-        elif op == 1:
-            #cursestransition(stdscr,read_book,(stdscr,"example.book"),1)
-            read_book(stdscr,"example.book")
         elif op == 0:
             #cursestransition(stdscr,read_book,(stdscr,cursesinput(stdscr,"What is the file path of the book you want to read?").strip()),1)
             read_book(stdscr,cursesinput(stdscr,"What is the file path of the book you want to read?").strip())
+        elif op == 2:
+            stdscr.erase()
+            e = cursesinput(stdscr,"What book do you want to add to your library")
+            if os.path.isfile(e):
+                add2library(e)
+            else:
+                displaymsg(stdscr,["Not a book",e])
+        elif op ==1:
+            stdscr.erase()
+            opl = []
+            binc = 0
+            for book in LIBRARY:
+                if os.path.isfile(book):
+                    try:
+                        with open(book) as g:
+                            _data = g.read()
+                            data = "\n".join([ln for ln in _data.split("\n") if ln.replace(" ","") != ""])#Removing empty lines
+                            config = data.split("\n%startdata\n")[0]
+                            config = {st.split("=")[0].strip():st.split("=")[1].strip() for st in config.split("\n")}
+                            opl.append(f"{config['title']} by {config['publisher']}")
+                    except Exception as e:
+                        opl.append(book+" (ERROR!)"+str(e))
+                else:
+                    opl.append(book+" (MISSING!)")
+                binc += 1
+            while True:
+                stdscr.erase()
+                rop = displayops(stdscr,opl,"Please choose a book")
+                read_book(stdscr,LIBRARY[rop])
 
 curses.wrapper(main)
