@@ -1,0 +1,27 @@
+title=The Example Book
+publisher=Enderbyte09
+date=2022
+%startdata
+$register Chapter 1
+--Chapter 1
++ 
+--A book
+#This line Throws an error
++ 
+#Empty + is a blank line
++Once upon a time there was a book
+$FG 47
++This book had colours too
+$FG reset
+@ And it could append to previous lines
++This boooooooooooooooooooooooooooooooooookkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk is uuuuuuuunnnnnescseaserarryy ly VVVVVVVVVVVEEEEEEEEEEEEEEEEEERRRRRRRRRRRRRBBBBBBBBBBOOOOOOOOOSSSSSETTTTTTEEEEEEEE
+%pagebreak
++It also had page breaks, which didn't work correctly
+#As does this one
+$register Book End
+--The End
+%pagebreak
++Wait! There's more!
++As it turns out, Page breaks did work correctly if utilized properly
+%pagebreak
+#Testing if pagebreak is required at end of book
