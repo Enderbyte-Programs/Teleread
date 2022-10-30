@@ -12,19 +12,17 @@ def cursestransition(stdscr,func_to_call,args=(),type=0):
     if type == 0:
         
         for y in range(my-1):
-            for x in range(mx-1):
-                stdscr.addstr(y,x,block)
-                stdscr.refresh()
+            stdscr.addstr(y,0,block*(mx-1))
+            stdscr.refresh()
             sleep(0.01)
         for y in range(my-1):
-            for x in range(mx-1):
-                stdscr.addstr(y,x," ")
-                stdscr.refresh()
+            stdscr.addstr(y,0," "*(mx-1))
+            stdscr.refresh()
             sleep(0.01)
     elif type == 1:
         _grid = [(x,y) for y in range(my-1) for x in range(mx-1)]
         while _grid:
-            for i in range(20):
+            for i in range(round(((my*mx)/(24*80))*20)):# Fixing slow transitions on HD screens
                 try:
                     pk = random.choice(_grid)
                     _grid.pop(_grid.index(pk))
@@ -35,7 +33,7 @@ def cursestransition(stdscr,func_to_call,args=(),type=0):
             sleep(0.01)
         _grid = [(x,y) for y in range(my-1) for x in range(mx-1)]
         while _grid:
-            for i in range(20):
+            for i in range(round(((my*mx)/(24*80))*20)):
                 try:
                     pk = random.choice(_grid)
                     _grid.pop(_grid.index(pk))
