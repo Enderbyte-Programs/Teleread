@@ -133,7 +133,19 @@ def read_book(stdscr,filename: str):
     if filename not in LIBRARY:
         stdscr.erase()
         if askyesno(stdscr,"You have not read this book before. Do you want to add it to your library?"):
-            add2library(filename)
+            e = filename
+            if e[0] == "/":
+                if os.path.isfile(e.strip()):
+                    add2library(e.strip())
+                else:
+                    displaymsg(stdscr,["Not a book",e])
+            else:
+                e = os.getcwd()+"/"+e
+                if os.path.isfile(e.strip()):
+                    add2library(e.strip())
+                else:
+                    displaymsg(stdscr,["Not a book",e])
+            add2library(e)
     cursestransition(stdscr,donothing,type=1)
     stdscr.erase()
     stdscr.addstr(0,0,f"Loading {config['title']}")
@@ -279,7 +291,8 @@ def read_book(stdscr,filename: str):
             if len(chapregister) > 0:
                 stdscr.erase()
                 gtc = displayops(stdscr,[f"{c[1]} (Page {c[0]+1})" for c in chapregister],"Please choose a chapter")
-                page = gtc
+                if gtc > -1:
+                    page = gtc
             else:
                 displaymsg(stdscr,["this book has no chapters."])
         stdscr.erase()
@@ -312,6 +325,8 @@ def displayops(stdscr,options: list,title="Please choose an option") -> int:
             selected -= 1
         elif _ch == curses.KEY_DOWN and selected < len(options)-1:
             selected += 1
+        elif _ch == curses.KEY_BACKSPACE:
+            return -1
         stdscr.erase()
 
 def askyesno(stdscr,title: str) -> int:
@@ -341,7 +356,10 @@ def main(stdscr):
             LIBRARY = []
     else:
         with open(APPDATADIR) as f:
-            APPDATA = json.load(f)
+            try:
+                APPDATA = json.load(f)
+            except:
+                APPDATA = {"library":[]}
             LIBRARY = APPDATA["library"]
     while True:
         op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit"],"Teleread 0.2")
@@ -353,31 +371,47 @@ def main(stdscr):
         elif op == 2:
             stdscr.erase()
             e = cursesinput(stdscr,"What book do you want to add to your library")
-            if os.path.isfile(e):
-                add2library(e)
-            else:
-                displaymsg(stdscr,["Not a book",e])
-        elif op ==1:
-            stdscr.erase()
-            opl = []
-            binc = 0
-            for book in LIBRARY:
-                if os.path.isfile(book):
-                    try:
-                        with open(book) as g:
-                            _data = g.read()
-                            data = "\n".join([ln for ln in _data.split("\n") if ln.replace(" ","") != ""])#Removing empty lines
-                            config = data.split("\n%startdata\n")[0]
-                            config = {st.split("=")[0].strip():st.split("=")[1].strip() for st in config.split("\n")}
-                            opl.append(f"{config['title']} by {config['publisher']}")
-                    except Exception as e:
-                        opl.append(book+" (ERROR!)"+str(e))
+            e = e.strip()
+            if len(e) == 0:
+                continue
+            if e[0] == "/":
+                if os.path.isfile(e.strip()):
+                    add2library(e.strip())
                 else:
-                    opl.append(book+" (MISSING!)")
-                binc += 1
-            while True:
+                    displaymsg(stdscr,["Not a book",e])
+            else:
+                e = os.getcwd()+"/"+e
+                if os.path.isfile(e.strip()):
+                    add2library(e.strip())
+                else:
+                    displaymsg(stdscr,["Not a book",e])
+        elif op ==1:
+            try:
                 stdscr.erase()
-                rop = displayops(stdscr,opl,"Please choose a book")
-                read_book(stdscr,LIBRARY[rop])
+                opl = []
+                binc = 0
+                for book in LIBRARY:
+                    if os.path.isfile(book):
+                        try:
+                            with open(book) as g:
+                                _data = g.read()
+                                data = "\n".join([ln for ln in _data.split("\n") if ln.replace(" ","") != ""])#Removing empty lines
+                                config = data.split("\n%startdata\n")[0]
+                                config = {st.split("=")[0].strip():st.split("=")[1].strip() for st in config.split("\n")}
+                                opl.append(f"{config['title']} by {config['publisher']}")
+                        except Exception as e:
+                            opl.append(book+" (ERROR!)"+str(e))
+                    else:
+                        opl.append(book+" (MISSING!)")
+                    binc += 1
+                while True:
+                    stdscr.erase()
+                    rop = displayops(stdscr,opl,"Please choose a book")
+                    if rop == -1:
+                        stdscr.erase()
+                        break
+                    read_book(stdscr,LIBRARY[rop])
+            except:
+                loadlibrary(stdscr,LIBRARY)
 
 curses.wrapper(main)
