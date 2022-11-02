@@ -291,7 +291,7 @@ def read_book(stdscr,filename: str):
             page -= 1
         elif ch == curses.KEY_RIGHT and page < len(pagelist)-1:
             page += 1
-        elif ch == curses.KEY_BACKSPACE:
+        elif ch == curses.KEY_BACKSPACE or ch == 98:
             stdscr.erase()
             return
         elif ch == 103:#g
@@ -320,7 +320,7 @@ def displayops(stdscr,options: list,title="Please choose an option") -> int:
         for o in options:
             oi += 1
             if oi == selected:
-                stdscr.addstr(oi+2,1,o,curses.color_pair(3))
+                stdscr.addstr(oi+2,1,o,curses.color_pair(4))
             else:
                 stdscr.addstr(oi+2,1,o)
         stdscr.addstr(len(options)+4,0,"Please choose an option with the arrow keys then press enter."[0:mx-1])
@@ -332,7 +332,7 @@ def displayops(stdscr,options: list,title="Please choose an option") -> int:
             selected -= 1
         elif _ch == curses.KEY_DOWN and selected < len(options)-1:
             selected += 1
-        elif _ch == curses.KEY_BACKSPACE:
+        elif _ch == curses.KEY_BACKSPACE or _ch == 98:
             return -1
         stdscr.erase()
 
@@ -354,8 +354,8 @@ def load_colours():
     curses.init_pair(3,curses.COLOR_GREEN,curses.COLOR_BLACK)
     curses.init_pair(4,curses.COLOR_CYAN,curses.COLOR_BLACK)
     curses.init_pair(5,curses.COLOR_MAGENTA,curses.COLOR_BLACK)
-    curses.init_pair(6,curses.COLOR_WHITE,curses.COLOR_BLACK)
     curses.init_pair(8,curses.COLOR_YELLOW,curses.COLOR_BLACK)
+    curses.init_pair(6,curses.COLOR_WHITE,curses.COLOR_BLACK) 
 
 def main(stdscr):
     global LIBRARY
@@ -381,7 +381,7 @@ def main(stdscr):
                 APPDATA = {"library":[]}
             LIBRARY = APPDATA["library"]
     while True:
-        op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit"],"Teleread 0.2")
+        op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit"],"Teleread 0.2.1")
         if op == 3:
             cursestransition(stdscr,sys.exit,type=0)
         elif op == 0:
@@ -409,6 +409,7 @@ def main(stdscr):
                 stdscr.erase()
                 opl = []
                 binc = 0
+                LIBRARY = list(set(LIBRARY))
                 for book in LIBRARY:
                     if os.path.isfile(book):
                         try:

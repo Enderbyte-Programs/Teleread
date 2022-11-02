@@ -10,8 +10,8 @@ $register Chapter 1
 + 
 #Empty + is a blank line
 +Once upon a time there was a book
-$FG 47
-+This book had colours too
+$FG 5
++This book had colours too 
 $FG reset
 @ And it could append to previous lines
 +This boooooooooooooooooooooooooooooooooookkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk is uuuuuuuunnnnnescseaserarryy ly VVVVVVVVVVVEEEEEEEEEEEEEEEEEERRRRRRRRRRRRRBBBBBBBBBBOOOOOOOOOSSSSSETTTTTTEEEEEEEE
