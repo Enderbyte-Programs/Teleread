@@ -6,6 +6,13 @@ from time import sleep
 import random
 from textwrap import wrap
 import json
+from platform import system
+if system() == "Windows":
+    NT = True#User is on Windows, change loc
+    os.system("")
+    os.system("color")
+else:
+    NT = False
 
 def cursestransition(stdscr,func_to_call,args=(),type=0):
     block = "█"
@@ -313,7 +320,7 @@ def displayops(stdscr,options: list,title="Please choose an option") -> int:
         for o in options:
             oi += 1
             if oi == selected:
-                stdscr.addstr(oi+2,1,o,curses.color_pair(14))
+                stdscr.addstr(oi+2,1,o,curses.color_pair(3))
             else:
                 stdscr.addstr(oi+2,1,o)
         stdscr.addstr(len(options)+4,0,"Please choose an option with the arrow keys then press enter."[0:mx-1])
@@ -340,15 +347,27 @@ def loadlibrary(stdscr,library):
     if len(library) == 0:
         displaymsg(stdscr,["You have no books in your library"])
 
+def load_colours():
+    curses.init_pair(7,curses.COLOR_BLACK,curses.COLOR_BLACK)
+    curses.init_pair(1,curses.COLOR_RED,curses.COLOR_BLACK)
+    curses.init_pair(2,curses.COLOR_BLUE,curses.COLOR_BLACK)
+    curses.init_pair(3,curses.COLOR_GREEN,curses.COLOR_BLACK)
+    curses.init_pair(4,curses.COLOR_CYAN,curses.COLOR_BLACK)
+    curses.init_pair(5,curses.COLOR_MAGENTA,curses.COLOR_BLACK)
+    curses.init_pair(6,curses.COLOR_WHITE,curses.COLOR_BLACK)
+    curses.init_pair(8,curses.COLOR_YELLOW,curses.COLOR_BLACK)
+
 def main(stdscr):
     global LIBRARY
     global APPDATA
     global APPDATADIR
     curses.start_color()
     curses.use_default_colors()
-    for i in range(0, curses.COLORS):
-        curses.init_pair(i + 1, i, -1)
-    APPDATADIR = os.path.expanduser("~/.local/share/teleread.json")
+    load_colours()
+    if not NT:
+        APPDATADIR = os.path.expanduser("~/.local/share/teleread.json")
+    else:
+        APPDATADIR = "teleread.json"
     if not os.path.isfile(APPDATADIR):
         with open(APPDATADIR,"w+") as f:
             f.write(json.dumps({"library":[]}))
