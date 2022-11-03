@@ -7,6 +7,8 @@ import random
 from textwrap import wrap
 import json
 from platform import system
+import shlex
+import urllib.request
 if system() == "Windows":
     NT = True#User is on Windows, change loc
     os.system("")
@@ -70,6 +72,21 @@ def displaymsg(stdscr,message: list):
     stdscr.addstr(y-2,0,"Press any key to dismiss this message")
     stdscr.refresh()
     stdscr.getch()
+    stdscr.erase()
+
+def displaymsgnodelay(stdscr,message: list):
+    stdscr.clear()
+    x,y = os.get_terminal_size()
+    message = [m[0:x-5] for m in message]#Limiting characters
+    maxs = max([len(s) for s in message])
+    rectangle(stdscr,y//2-(len(message)//2)-1, x//2-(maxs//2)-1, y//2+(len(message)//2)+2, x//2+(maxs//2+1)+1)
+    stdscr.addstr(0,0,"Message: ")
+    mi = -(len(message)/2)
+    
+    for msgl in message:
+        mi += 1
+        stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl)
+    stdscr.refresh()
     stdscr.erase()
 
 def cursesinput(stdscr,prompt: str):
@@ -152,14 +169,19 @@ def read_book(stdscr,filename: str):
                     add2library(e.strip())
                 else:
                     displaymsg(stdscr,["Not a book",e])
-            add2library(e)
+            
     cursestransition(stdscr,donothing,type=1)
     stdscr.erase()
     stdscr.addstr(0,0,f"Loading {config['title']}")
     stdscr.refresh()
     x,y = os.get_terminal_size()
     book = [d for d in book.splitlines() if d[0] != "#" and d.replace(" ","") != ""]#Removing comments and empty lines
-    
+    _book = "\n".join(book).split("\n%enddata\n")
+    endofbook = []
+    if len(_book) > 1:
+        book = _book[0].splitlines()
+        endofbook = _book[1].splitlines()
+        del _book
     linc = 0
     chapregister = {}
     validchars = ["#","$","%","+","-","@"]
@@ -184,7 +206,7 @@ def read_book(stdscr,filename: str):
     linc = 0
     textlist = []
     chapregister = []
-    activefg = 8
+    activefg = 6
     for bline in book:
         if bline[0] == "+":
             if bline[1:] == "":
@@ -202,7 +224,7 @@ def read_book(stdscr,filename: str):
             if bline[1:3].upper() == "FG":
                 newfg = bline[4:]
                 if newfg.lower() == "reset":
-                    activefg = 8
+                    activefg = 6
                     continue
                 try:
                     activefg = int(newfg)
@@ -245,7 +267,7 @@ def read_book(stdscr,filename: str):
             pagelist.append(activeopage)
             activeopage = []
     del lpage
-    del textlist#Freeing up memory
+    #del textlist#Freeing up memory
     page = 0
    
     #print(pagelist)
@@ -291,9 +313,70 @@ def read_book(stdscr,filename: str):
             page -= 1
         elif ch == curses.KEY_RIGHT and page < len(pagelist)-1:
             page += 1
+        elif ch == curses.KEY_RIGHT and page+1 == len(pagelist):
+            bookl = ["Quit"]
+            urll = ["_"]
+            stdscr.erase()
+            for ln in endofbook:
+                try:
+                    if ln[0] == "$":
+                        if ln[1:4] == "rec":
+                            _ln = shlex.split(ln)
+                            _message = f"{_ln[1]} by {_ln[2]}"
+                            urll.append(_ln[3])
+                            bookl.append(_message)                           
+                except:
+                    pass
+            dbook = displayops(stdscr,bookl,"You finished the book. Here are some more!")
+            if dbook >= 1:
+                try:
+                    displaymsgnodelay(stdscr,["Downloading Book",_ln[1]])
+                    bookid = random.randint(0,1000)
+                    urllib.request.urlretrieve(urll[dbook],f"{bookid}.book")
+                except Exception as e:
+                    displaymsg(stdscr,["Download error",urll[dbook],str(e)])
+                else:
+                    add2library(os.getcwd()+f"/{bookid}.book")
+                    read_book(stdscr,os.getcwd()+f"/{bookid}.book")
+                    return
+            elif dbook == 0:
+                return
+                
         elif ch == curses.KEY_BACKSPACE or ch == 98:
             stdscr.erase()
             return
+        elif ch == 114:
+            opage = page
+            displaymsgnodelay(stdscr,["Reloading..."])
+            pagelist = []
+            #print(textlist)
+            page = 0
+            lpage = 0
+            x,y = os.get_terminal_size()
+            validrlines = y - 6
+            activeopage = []
+            for instruction in textlist:
+                
+                if "special" in instruction.keys():
+                    if instruction["special"] == "break":
+                        pagelist.append(activeopage)#Early break of page
+                        page += 1
+                        lpage = 0
+                        activeopage = []
+                    elif instruction["special"] == "putchapter":
+                        chapregister.append((page,instruction["data"]))#Tuple in structure of (page,name)
+                        continue#DO NOT increment local page
+                else:
+                    activeopage.append(instruction)
+                lpage += 1
+                if lpage == validrlines:
+                    lpage = 0
+                    page += 1
+                    pagelist.append(activeopage)
+                    activeopage = []
+            del lpage
+
+            page = opage
         elif ch == 103:#g
             if len(chapregister) > 0:
                 stdscr.erase()
