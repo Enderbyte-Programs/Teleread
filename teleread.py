@@ -420,7 +420,7 @@ def read_book(stdscr,filename: str):
                 stdscr.erase()
                 gtc = displayops(stdscr,[f"{c[1]} (Page {c[0]+1})" for c in chapregister],"Please choose a chapter")
                 if gtc > -1:
-                    page = gtc
+                    page = chapregister[gtc][0]
             else:
                 displaymsg(stdscr,["this book has no chapters."])
         stdscr.erase()
