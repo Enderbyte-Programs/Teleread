@@ -248,7 +248,7 @@ def read_book(stdscr,filename: str):
     page = 0
     lpage = 0
     x,y = os.get_terminal_size()
-    validrlines = y - 3
+    validrlines = y - 4
     activeopage = []
     for instruction in textlist:
         
@@ -278,7 +278,7 @@ def read_book(stdscr,filename: str):
     #input()
     while True:
         x,y = os.get_terminal_size()
-        validrlines = y - 3
+        validrlines = y - 4
         llinc = 0
         
         #Iterate through textlist
@@ -355,6 +355,7 @@ def read_book(stdscr,filename: str):
             opage = page
             displaymsgnodelay(stdscr,["Reloading..."])
             textlist = []
+            chapregister = []
             activefg = 6
             for bline in book:
                 if bline[0] == "+":
@@ -391,7 +392,7 @@ def read_book(stdscr,filename: str):
             page = 0
             lpage = 0
             x,y = os.get_terminal_size()
-            validrlines = y - 6
+            validrlines = y - 4
             activeopage = []
             for instruction in textlist:
                 
@@ -513,7 +514,7 @@ def main(stdscr):
                 APPDATA = {"library":[]}
             LIBRARY = APPDATA["library"]
     while True:
-        op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit"],"Teleread 0.3.1")
+        op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit"],"Teleread 0.3.3")
         if op == 3:
             cursestransition(stdscr,sys.exit,type=0)
         elif op == 4:
