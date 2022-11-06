@@ -53,5 +53,14 @@ $FG 8
 +text
 $FG reset
 +These simple colours are supported by most terminals across Windows and Linux.
++Now back to keybinds. Pressing G will open up the Chapters menu. Like other menus, move using the up and down arrow keys and choose a chapter with the Enter key. You will be sent to the page of the chapter. Remember to check your version as there is a bug with this features before v0.3.3. Pressing B or Backspace will return you back to the previous menu. When you reach the last page of the book, Pressing the right arrow again will bring you to the End Of Book menu. This menu is a standard options menu. You can either quit to the main menu, return to the last page of the book or choose to read another book. You can choose anoterh book to read by the title. The books recommended to you are chosen by the author of the book you are reading, Selecting one will download the book and open it. Teleread will not open it if you don't have an internet connection
++
++That concludes the standard users manual. Proceed further if you want to read the Technical Documentation to make your own book
+%pagebreak
+--Warning: The next section of this book is meant for advanced users. If you are a normal user, press B to exit.
+%pagebreak
+$register Techincal Documentation
+--Technical Documenation
+--Chapter 3: How to make your own book
 %pagebreak
 %enddata
