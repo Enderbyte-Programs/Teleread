@@ -209,7 +209,7 @@ def read_book(stdscr,filename: str):
     
     chapregister = []
     textlist = []
-    activefg = 6
+    activefg = 0
     for bline in book:
         if bline[0] == "+":
             if bline[1:] == "":
@@ -227,7 +227,7 @@ def read_book(stdscr,filename: str):
             if bline[1:3].upper() == "FG":
                 newfg = bline[4:]
                 if newfg.lower() == "reset":
-                    activefg = 6
+                    activefg = 0
                     continue
                 try:
                     activefg = int(newfg)
@@ -356,7 +356,7 @@ def read_book(stdscr,filename: str):
             displaymsgnodelay(stdscr,["Reloading..."])
             textlist = []
             chapregister = []
-            activefg = 6
+            activefg = 0
             for bline in book:
                 if bline[0] == "+":
                     if bline[1:] == "":
@@ -374,7 +374,7 @@ def read_book(stdscr,filename: str):
                     if bline[1:3].upper() == "FG":
                         newfg = bline[4:]
                         if newfg.lower() == "reset":
-                            activefg = 6
+                            activefg = 0
                             continue
                         try:
                             activefg = int(newfg)
