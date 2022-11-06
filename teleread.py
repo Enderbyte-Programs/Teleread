@@ -144,12 +144,14 @@ def read_book(stdscr,filename: str):
             for msgl in message:
                 mi += 1
                 stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl)
-            stdscr.addstr(y-2,0,"Press enter to begin reading.")
+            stdscr.addstr(y-2,0,"Press enter to begin reading. Press B to quit")
             stdscr.refresh()
             __c = stdscr.getch()
             
             if __c == curses.KEY_ENTER or __c == 10 or __c == 13:
                 break
+            elif __c == curses.KEY_BACKSPACE or __c == 98:
+                return
             stdscr.erase()
     except Exception as e:
         displaymsg(stdscr,["Book Init Error",filename,str(e)])
@@ -204,8 +206,9 @@ def read_book(stdscr,filename: str):
         if len(bline) > 9 and bline[0:8] == "$register":
             chapregister[" ".join(bline.split(" ")[1:])] = linc
     linc = 0
-    textlist = []
+    
     chapregister = []
+    textlist = []
     activefg = 6
     for bline in book:
         if bline[0] == "+":
@@ -245,7 +248,7 @@ def read_book(stdscr,filename: str):
     page = 0
     lpage = 0
     x,y = os.get_terminal_size()
-    validrlines = y - 6
+    validrlines = y - 3
     activeopage = []
     for instruction in textlist:
         
@@ -275,7 +278,7 @@ def read_book(stdscr,filename: str):
     #input()
     while True:
         x,y = os.get_terminal_size()
-        validrlines = y - 6
+        validrlines = y - 3
         llinc = 0
         
         #Iterate through textlist
@@ -314,7 +317,7 @@ def read_book(stdscr,filename: str):
         elif ch == curses.KEY_RIGHT and page < len(pagelist)-1:
             page += 1
         elif ch == curses.KEY_RIGHT and page+1 == len(pagelist):
-            bookl = ["Quit"]
+            bookl = ["Quit","Return to book"]
             urll = ["_"]
             stdscr.erase()
             for ln in endofbook:
@@ -328,19 +331,22 @@ def read_book(stdscr,filename: str):
                 except:
                     pass
             dbook = displayops(stdscr,bookl,"You finished the book. Here are some more!")
-            if dbook >= 1:
+            if dbook >= 2:
                 try:
                     displaymsgnodelay(stdscr,["Downloading Book",_ln[1]])
                     bookid = random.randint(0,1000)
-                    urllib.request.urlretrieve(urll[dbook],f"{bookid}.book")
+                    urllib.request.urlretrieve(urll[dbook-1],f"{bookid}.book")
                 except Exception as e:
-                    displaymsg(stdscr,["Download error",urll[dbook],str(e)])
+                    displaymsg(stdscr,["Download error",urll[dbook-1],str(e)])
                 else:
                     add2library(os.getcwd()+f"/{bookid}.book")
                     read_book(stdscr,os.getcwd()+f"/{bookid}.book")
                     return
             elif dbook == 0:
                 return
+            elif dbook == 1:
+                stdscr.erase()
+                continue#Returning back to book
                 
         elif ch == curses.KEY_BACKSPACE or ch == 98:
             stdscr.erase()
@@ -348,6 +354,38 @@ def read_book(stdscr,filename: str):
         elif ch == 114:
             opage = page
             displaymsgnodelay(stdscr,["Reloading..."])
+            textlist = []
+            activefg = 6
+            for bline in book:
+                if bline[0] == "+":
+                    if bline[1:] == "":
+
+                        textlist.append({"data":bline[1:],"cen":False,"cl":activefg,"appendr":False})
+                    else:
+                        _brline = wrap(bline[1:],x-3)
+                        for _br in _brline:
+                            textlist.append({"data":_br,"cen":False,"cl":activefg,"appendr":False})
+                elif bline[0:2] == "--":
+                    textlist.append({"data":bline[2:],"cen":True,"cl":activefg,"appendr":False})
+                elif bline.strip() == "%pagebreak":
+                    textlist.append({"data":"","special":"break"})
+                elif bline[0] == "$":
+                    if bline[1:3].upper() == "FG":
+                        newfg = bline[4:]
+                        if newfg.lower() == "reset":
+                            activefg = 6
+                            continue
+                        try:
+                            activefg = int(newfg)
+                        except:
+                            displaymsg(stdscr,["Syntax Error: Invalid colour"])
+                    elif bline[1:9] == "register":
+                        textlist.append({"data":bline[10:],"special":"putchapter"})#Telling interpreter to register a new chapter
+                    linc -= 1
+                elif bline[0] == "@":
+                    textlist.append({"data":bline[1:],"cen":False,"cl":activefg,"appendr":True})#New entry for text but telling interpreter to remove formatting
+                linc += 1
+            linc = 0
             pagelist = []
             #print(textlist)
             page = 0
@@ -390,30 +428,41 @@ def read_book(stdscr,filename: str):
 def displayops(stdscr,options: list,title="Please choose an option") -> int:
     mx, my = os.get_terminal_size()
     selected = 0
-    options = [l[0:mx-3] for l in options][0:my-5]
+    options = [l[0:mx-3] for l in options]
     maxlen = max([len(l) for l in options])
     stdscr.addstr(0,0,title[0:mx-1])
+    offset = 0
     while True:
         stdscr.addstr(0,0,title[0:mx-1])
         mx, my = os.get_terminal_size()
-        options = [l[0:mx-3] for l in options][0:my-5]
+        options = [l[0:mx-3] for l in options]
         maxlen = max([len(l) for l in options])
-        rectangle(stdscr,1,0,2+len(options),maxlen+2)
+        if len(options) > my-5:
+            rectangle(stdscr,1,0,my-2,mx-1)
+        else:
+            rectangle(stdscr,1,0,2+len(options),maxlen+2)
         oi = -1
-        for o in options:
+        for o in options[offset:offset+(my-4)]:
             oi += 1
-            if oi == selected:
-                stdscr.addstr(oi+2,1,o,curses.color_pair(4))
-            else:
-                stdscr.addstr(oi+2,1,o)
-        stdscr.addstr(len(options)+4,0,"Please choose an option with the arrow keys then press enter."[0:mx-1])
+            try:
+                if oi == selected-offset:
+                    stdscr.addstr(oi+2,1,o,curses.color_pair(4))
+                else:
+                    stdscr.addstr(oi+2,1,o)
+            except curses.error:
+                pass
+        stdscr.addstr(my-1,0,"Please choose an option with the arrow keys then press enter."[0:mx-1])
         stdscr.refresh()
         _ch = stdscr.getch()
         if _ch == curses.KEY_ENTER or _ch == 10 or _ch == 13:
             return selected
         elif _ch == curses.KEY_UP and selected > 0:
+            if offset > 0 and selected-offset == 0:
+                offset -= 1
             selected -= 1
         elif _ch == curses.KEY_DOWN and selected < len(options)-1:
+            if selected >= my-6:
+                offset += 1
             selected += 1
         elif _ch == curses.KEY_BACKSPACE or _ch == 98:
             return -1
@@ -464,9 +513,11 @@ def main(stdscr):
                 APPDATA = {"library":[]}
             LIBRARY = APPDATA["library"]
     while True:
-        op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit"],"Teleread 0.2.1")
+        op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit"],"Teleread 0.3.1")
         if op == 3:
             cursestransition(stdscr,sys.exit,type=0)
+        elif op == 4:
+            displaymsg(stdscr,[str(displayops(stdscr,[str(i) for i in range(50)]))])
         elif op == 0:
             #cursestransition(stdscr,read_book,(stdscr,cursesinput(stdscr,"What is the file path of the book you want to read?").strip()),1)
             read_book(stdscr,cursesinput(stdscr,"What is the file path of the book you want to read?").strip())
@@ -492,7 +543,11 @@ def main(stdscr):
                 stdscr.erase()
                 opl = []
                 binc = 0
-                LIBRARY = list(set(LIBRARY))
+                LIBRARY = sorted(list(set(LIBRARY)))
+                LIBRARY.sort(key=str.lower)
+                dictlib = {}
+                if len(LIBRARY) == 0:
+                    raise ValueError("No books in Library!")
                 for book in LIBRARY:
                     if os.path.isfile(book):
                         try:
@@ -502,19 +557,24 @@ def main(stdscr):
                                 config = data.split("\n%startdata\n")[0]
                                 config = {st.split("=")[0].strip():st.split("=")[1].strip() for st in config.split("\n")}
                                 opl.append(f"{config['title']} by {config['publisher']}")
+                                dictlib[book] = f"{config['title']} by {config['publisher']}"
                         except Exception as e:
                             opl.append(book+" (ERROR!)"+str(e))
+                            dictlib[book] = book+" (ERROR!)"+str(e)
                     else:
                         opl.append(book+" (MISSING!)")
+                        dictlib[book] = book+" (MISSING!)"
                     binc += 1
+                opl.sort(key=str.lower)
+                dictlib = {k: v for k, v in sorted(dictlib.items(), key=lambda item: item[1])}
                 while True:
                     stdscr.erase()
-                    rop = displayops(stdscr,opl,"Please choose a book")
+                    rop = displayops(stdscr,dictlib.values(),"Please choose a book")
                     if rop == -1:
                         stdscr.erase()
                         break
-                    read_book(stdscr,LIBRARY[rop])
-            except:
-                loadlibrary(stdscr,LIBRARY)
+                    read_book(stdscr,list(dictlib.keys())[rop])
+            except Exception as e:
+                displaymsg(stdscr,["Library Load Error",str(e)])
 
 curses.wrapper(main)
