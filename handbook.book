@@ -1,0 +1,57 @@
+title=Teleread Handbook and Users Manual
+publisher=Enderbyte Programs
+date=2022
+%startdata
+$register Title
+--Teleread Handbook
+--By Enderbyte Programs
++
++Teleread is (c) 2022 Enderbyte Programs LLC.
+%pagebreak
++For developers or authors wanting to make a book, press "G" and skip ahead to the Technical Documentation.
++For normal users who want to learn how to use Teleread, press the right arrow.
+%pagebreak
+$register Chapter 1: Installing Teleread
++This chapter will help you install Teleread on your device. Teleread is supported on Linux and Windows. Installing on Windows is easy. Simply download teleread.exe from the latest Github release. Versions 0.3 and older support Windows 10 and 11, but releases newer than that support Windows 7-11. Because I don't want to pay 400 dollars per year to sign this executable, you may have to dismiss a warning that teleread.exe contains malware. Because Teleread is mainly coded on Linux, there may be some issues in the Windows version. If you find a bug, please report it on Github. Installing on Linux is a bit more difficult, but still fairly easy. Because this program is not written in C, there is no makefile. Instead there is build.sh.
++First, run the command "git clone https://github.com/Enderbyte-Programs/Teleread" ./teleread" This will copy the Repository into the directory ./teleread
++Next, run the command "cd ./teleread"
++Before executing the next instruction, please see what happens during the build below
++   Install Python3
++   Install Pyinstaller
++   Install urllib
++   Build into an executable
++Next, run the command "sudo bash build.sh"
++The output executable will be "teleread" in the same directory.
+%pagebreak
+$register Chapter 2: How to use
+--How to use Teleread
++On linux, run Teleread through a terminal. On windows, double click the executable. When you have started Teleread, you will be met with a Curses menu. In all menus of this type, use the up and down arrows on your keyboard and press enter to exit. You may also press Backspace or B to return to the previous menu (note: This does not work on the Main menu). The first option is to read a book. When you select this, you must type in a file path (absolute, eg. /home/me/book.book or C:\Users\me\book.book) or relative if the book is in the same directory as the executable (eg. abook.book). When you are done typing, press enter. The program will now attempt to read the book. For more information, see "book ui" in the next few pages or on this page (depending on your screen size). If you select the second option (view library), you can see all of the books that you have put into your library. Select one by pressing enter. If a book has a file path instead of a name, there has been an error. If it says (MISSING!), the book in the library could not be found in your filesystem. If it says (ERROR!) followed by some text, there was an error in getting the books information. If there is enough space on your screen, you should be able to see the error message. If there are no books in your library, you will see a screen that says "Library load error no books in library". If you ever get this screen but with a different second line, please send a screenshot to me on the Github repo. The Third option on the main menu list is "Add book to library". Here you can add a book to your library without reading it. Similar to the "read book" function, you must type a file path to the book you want to add. A warning about this feature: It WILL check if the file exists but it WILL NOT check if it is a valid book.
+--The Reading UI (Book UI)
++This is what you will see and do when you choose a book from the library or input a path with the "Read book" function.
++Teleread will begin loading the book. It will check if the file path exists first. If it isn't you will get an error message "Failed to open book" with a message. If the file exists, Teleread will read the book's data and try to pull information about the publisher. If it is not successfull, you will see a "Book Init Error". If this happens on a book file, please send a screenshot to me on Github. If it is a valid book file, you will see a screen with some book information. Pressing enter on this screen will play a transition to the actual book. Pressing "B" on this screen will return you to the main menu. 
++
++Inside The Book
++
++Inside a valid book there is an easy-to-use UI. Move to the next and previous page with your right and left arrow. The numbers at the bottom of the screen show where in the book you are. The large rectangle in the centre shows the text of the book. Pressing R will refresh the page and chapter cache. Use this only when your screen/terminal changes its size as it can take a long time to refresh for longer books. Teleread also supports colours. Here are all of the colours it supports:
+$FG 0
++text
+$FG 1
++text
+$FG 2
++text
+$FG 3
++text
+$FG 4
++text
+$FG 5
++text
+$FG 6
++text
+$FG 7
++text
+$FG 8
++text
+$FG reset
++These simple colours are supported by most terminals across Windows and Linux.
+%pagebreak
+%enddata
