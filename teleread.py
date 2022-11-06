@@ -9,6 +9,7 @@ import json
 from platform import system
 import shlex
 import urllib.request
+import traceback
 if system() == "Windows":
     NT = True#User is on Windows, change loc
     os.system("")
@@ -60,7 +61,12 @@ def donothing():
 def displaymsg(stdscr,message: list):
     stdscr.clear()
     x,y = os.get_terminal_size()
-    message = [m[0:x-5] for m in message]#Limiting characters
+    ox = 0
+    for o in message:
+        ox += 1
+        if "\n" in o:
+            message.insert(ox,o.split("\n")[1])
+    message = [m[0:x-5].split("\n")[0] for m in message]#Limiting characters
     maxs = max([len(s) for s in message])
     rectangle(stdscr,y//2-(len(message)//2)-1, x//2-(maxs//2)-1, y//2+(len(message)//2)+2, x//2+(maxs//2+1)+1)
     stdscr.addstr(0,0,"Message: ")
@@ -77,7 +83,12 @@ def displaymsg(stdscr,message: list):
 def displaymsgnodelay(stdscr,message: list):
     stdscr.clear()
     x,y = os.get_terminal_size()
-    message = [m[0:x-5] for m in message]#Limiting characters
+    ox = 0
+    for o in message:
+        ox += 1
+        if "\n" in o:
+            message.insert(ox,o.split("\n")[1])
+    message = [m[0:x-5].split("\n")[0] for m in message]#Limiting characters
     maxs = max([len(s) for s in message])
     rectangle(stdscr,y//2-(len(message)//2)-1, x//2-(maxs//2)-1, y//2+(len(message)//2)+2, x//2+(maxs//2+1)+1)
     stdscr.addstr(0,0,"Message: ")
@@ -126,7 +137,7 @@ def read_book(stdscr,filename: str):
         with open(filename) as f:
             data = f.read()
     except (PermissionError, OSError, FileNotFoundError) as e:
-        displaymsg(stdscr,["Failed to open book",filename,str(e)])
+        displayerror(stdscr,e,"Book Read Error")
         return 1
     try:
         data = "\n".join([ln for ln in data.split("\n") if ln.replace(" ","") != ""])#Removing empty lines
@@ -154,7 +165,7 @@ def read_book(stdscr,filename: str):
                 return
             stdscr.erase()
     except Exception as e:
-        displaymsg(stdscr,["Book Init Error",filename,str(e)])
+        displayerror(stdscr,e,"Book Init Error")
         return 1
     if filename not in LIBRARY:
         stdscr.erase()
@@ -429,6 +440,7 @@ def read_book(stdscr,filename: str):
 def displayops(stdscr,options: list,title="Please choose an option") -> int:
     mx, my = os.get_terminal_size()
     selected = 0
+    
     options = [l[0:mx-3] for l in options]
     maxlen = max([len(l) for l in options])
     stdscr.addstr(0,0,title[0:mx-1])
@@ -490,6 +502,10 @@ def load_colours():
     curses.init_pair(8,curses.COLOR_YELLOW,curses.COLOR_BLACK)
     curses.init_pair(6,curses.COLOR_WHITE,curses.COLOR_BLACK) 
 
+def displayerror(stdscr,e,msg: str):
+    esx = traceback.format_exception(e)
+    displaymsg(stdscr,["An error occured",msg]+[e for e in esx])
+
 def main(stdscr):
     global LIBRARY
     global APPDATA
@@ -514,11 +530,18 @@ def main(stdscr):
                 APPDATA = {"library":[]}
             LIBRARY = APPDATA["library"]
     while True:
-        op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit"],"Teleread 0.3.3")
+        op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit","Help"],"Teleread 0.4")
         if op == 3:
             cursestransition(stdscr,sys.exit,type=0)
         elif op == 4:
-            displaymsg(stdscr,[str(displayops(stdscr,[str(i) for i in range(50)]))])
+            #displaymsg(stdscr,[str(displayops(stdscr,[str(i) for i in range(50)]))])
+            try:
+                displaymsgnodelay(stdscr,["Downloading Handbook and Users Manual(7.0 KB)"])
+                urllib.request.urlretrieve("https://github.com/Enderbyte-Programs/Teleread/raw/main/handbook.book","handbook.book")
+                read_book(stdscr,"handbook.book")
+            except Exception as ex:
+                displayerror(stdscr,ex,"Failed to get handbook")
+
         elif op == 0:
             #cursestransition(stdscr,read_book,(stdscr,cursesinput(stdscr,"What is the file path of the book you want to read?").strip()),1)
             read_book(stdscr,cursesinput(stdscr,"What is the file path of the book you want to read?").strip())
@@ -576,6 +599,6 @@ def main(stdscr):
                         break
                     read_book(stdscr,list(dictlib.keys())[rop])
             except Exception as e:
-                displaymsg(stdscr,["Library Load Error",str(e)])
+                displayerror(stdscr,e,"Library Load Error")
 
 curses.wrapper(main)
