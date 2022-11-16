@@ -62,5 +62,33 @@ $FG reset
 $register Techincal Documentation
 --Technical Documenation
 --Chapter 3: How to make your own book
++
+--File Structure
++
++This first section will show you how a Book file is structured.
++Book files are structured using a Header-Body-Footer system. (Please note that the footer is optional to remain backward-compatibility)
++Here is a structure shown graphically
++
++Header
++%startdata
++BODY
++%pagebreak
++%enddata
++Footer (optional)
++
+--The Header
++The header contains three lines. (Please remember to NOT have any blank lines). These lines are the title, publisher, and date. Here is an example header:
++
++title=The Book
++publisher=Me
++date=2022
++
++The header can be in any order, but it must follow this key=value syntax. In between the header and body, you must put a line that says only %startdata. After this you put the body. Before I talk about the body, here is how the footer is structured. At the end of the body, put two lines. %pagebreak and %enddata. By itself, this is a sufficient footer. If you would like to recommend other books, after the enddata line, put $rec <Name> <Author> <URL>. If any of these have spaces, surround them with quotes. Here is an example footer rec line:
++$rec Book3 "James Butkins" https://example.com/example
++
+--The Body
++
++Characters
++The allowed first characters in the body are +, #, %, $, and -. + denotes a new line of text, # is a comment, % is a code, and $ is a config set
 %pagebreak
 %enddata
