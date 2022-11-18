@@ -531,7 +531,7 @@ def main(stdscr):
             LIBRARY = APPDATA["library"]
     if len(sys.argv) > 1:
         read_book(stdscr,sys.argv[1])
-        sys.exit()
+        cursestransition(stdscr,sys.exit)
     while True:
         op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit","Help"],"Teleread 0.4")
         if op == 3:
