@@ -89,6 +89,100 @@ $register Techincal Documentation
 --The Body
 +
 +Characters
-+The allowed first characters in the body are +, #, %, $, and -. + denotes a new line of text, # is a comment, % is a code, and $ is a config set
++The allowed first characters in the body are +, #, %, $, @, and -. + denotes a new line of text, # is a comment, % is a code, and $ is a config set
+++ is a new line of text. Don't worry about line breaks, Teleread will do it for you.
++-- Denotes centered text. 
++# is a comment. It will be ignored
++@ is append. It will append to the previous + line
++% is a code. Here are some codes:
++%pagebreak breaks a page
++%startdata denotes the beginning of the body
++%enddata denotes the end of the body
++$ is a config set. Here are sone config codes:
++$FG <colour> Sets the foreground colour. See the colours page for more information on colours. (Example: $FG 1 sets colour to red)
++$rec (You know this one, look to footer for more details)
++$register <name> registers a chapter with Name.
+%pagebreak
+$register Changelogs
+--Changelogs
++
+--v0.4.1
++Type: Small feature addition
++Date: 2022-11-18
++Contributors: Enderbyte09
++
++	-Fixed bug with Windows file paths
++	-Added new icon because old one was hard to read
++	-Added args: If you run Teleread with args (.\teleread.exe book.book) it will read the book
++
+--v0.4
++Type: Medium Feature Addition
++Date: 2022-11-06
++Contributors: Enderbyte09
++
++	-Added the help menu
++ 	    -Downloads this book to help new users and developers
++	-Improved error messages. You may not understand them though
++
+--v0.3.3
++Type: Bug Fix
++Date: 2022-11-06
++Contributors: Enderbyte09
++
++	-Unspecified Bug Fixes
++
+--v0.3.2
++Type: Critical Bug Fix
++Date: 2022-11-05
++Contributors: Enderbyte09
++
++	-Fixed bug where chapters would not line up correctly
++
+--v0.3.1
++Type: Bug Fix, Small features addition
++Date: 2022-11-05
++Contributors: Enderbyte09
++
++	-Alphabetized library
++	-Added ability to quit from book menu
++	-Added ability to return to book from EOB menu
++	-Fixed some formatting issues
++	-Fixed reload not reloading chapters
++	-Fixed LoadLibrary() errors
++	-Added support for Windows 7 and 8
++	-Added this file
++
+--v0.3
++Type: Medium feature add
++Date: 2022-11-03
++Contributors: Enderbyte09
++
++	-Added EOB menu
++	    -Add recommended books
++	-Added displaymsgnodelay()
++	-Added reload function to reload formatting (only works on Linux terminals)
++
+--v0.2.1
++Type: Small feature add, support fix
++Date: 2022-11-02
++Contributors: Enderbyte09
++
++	-Unified colours system with 8 colours (see colourstest.book)
++	-Added firm Windows support (just 10 and 11 for now)
++	-Menus can now be exited with the B key
++
+--v0.2
++Type: Medium Feature add
++Date: 2022-10-31
++Contributors: Enderbyte09
++
++	-Added chapters
++
+--v0.1
++Type: Project Create
++Date: ??
++Contributors: Enderbyte09
++
++End of changelog. For more info see the github page, https://github.com/Enderbyte-Programs/Teleread
 %pagebreak
 %enddata
