@@ -171,7 +171,7 @@ def read_book(stdscr,filename: str):
         stdscr.erase()
         if askyesno(stdscr,"You have not read this book before. Do you want to add it to your library?"):
             e = filename
-            if e[0] == "/":
+            if e[0] == "/" or e[1] == ":":
                 if os.path.isfile(e.strip()):
                     add2library(e.strip())
                 else:
@@ -529,6 +529,9 @@ def main(stdscr):
             except:
                 APPDATA = {"library":[]}
             LIBRARY = APPDATA["library"]
+    if len(sys.argv) > 1:
+        read_book(stdscr,sys.argv[1])
+        sys.exit()
     while True:
         op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit","Help"],"Teleread 0.4")
         if op == 3:
@@ -537,8 +540,13 @@ def main(stdscr):
             #displaymsg(stdscr,[str(displayops(stdscr,[str(i) for i in range(50)]))])
             try:
                 displaymsgnodelay(stdscr,["Downloading Handbook and Users Manual(7.0 KB)"])
-                urllib.request.urlretrieve("https://github.com/Enderbyte-Programs/Teleread/raw/main/handbook.book","handbook.book")
-                read_book(stdscr,"handbook.book")
+                if not NT:
+                    urllib.request.urlretrieve("https://github.com/Enderbyte-Programs/Teleread/raw/main/handbook.book","handbook.book")
+                    read_book(stdscr,"handbook.book")
+                else:
+                    urllib.request.urlretrieve("https://github.com/Enderbyte-Programs/Teleread/raw/main/handbook.book","C:\\ProgramData\\handbook.book")
+                    read_book(stdscr,"C:\\ProgramData\\handbook.book")
+
             except Exception as ex:
                 displayerror(stdscr,ex,"Failed to get handbook")
 
@@ -551,7 +559,7 @@ def main(stdscr):
             e = e.strip()
             if len(e) == 0:
                 continue
-            if e[0] == "/":
+            if e[0] == "/" or e[1] == ":":#Checking for relative or absolute path
                 if os.path.isfile(e.strip()):
                     add2library(e.strip())
                 else:
