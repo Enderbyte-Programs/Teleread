@@ -106,6 +106,14 @@ $register Techincal Documentation
 $register Changelogs
 --Changelogs
 +
+--v0.4.2
++Type: Bugfix
++Date: 2022-11-18
++Contributors: Enderbyte09
++
++   -Fixed bug with installer system on windows
++   -Selecting help will no longer download a new version every time
++
 --v0.4.1
 +Type: Small feature addition
 +Date: 2022-11-18

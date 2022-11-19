@@ -516,7 +516,7 @@ def main(stdscr):
     if not NT:
         APPDATADIR = os.path.expanduser("~/.local/share/teleread.json")
     else:
-        APPDATADIR = "teleread.json"
+        APPDATADIR = "C:\\ProgramData\\teleread.json"
     if not os.path.isfile(APPDATADIR):
         with open(APPDATADIR,"w+") as f:
             f.write(json.dumps({"library":[]}))
@@ -533,22 +533,25 @@ def main(stdscr):
         read_book(stdscr,sys.argv[1])
         cursestransition(stdscr,sys.exit)
     while True:
-        op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit","Help"],"Teleread 0.4")
+        op = displayops(stdscr,["Read Book","View Library","Add book to library","Quit","Help"],"Teleread 0.4.2")
         if op == 3:
             cursestransition(stdscr,sys.exit,type=0)
         elif op == 4:
             #displaymsg(stdscr,[str(displayops(stdscr,[str(i) for i in range(50)]))])
-            try:
-                displaymsgnodelay(stdscr,["Downloading Handbook and Users Manual(7.0 KB)"])
-                if not NT:
-                    urllib.request.urlretrieve("https://github.com/Enderbyte-Programs/Teleread/raw/main/handbook.book","handbook.book")
-                    read_book(stdscr,"handbook.book")
-                else:
-                    urllib.request.urlretrieve("https://github.com/Enderbyte-Programs/Teleread/raw/main/handbook.book","C:\\ProgramData\\handbook.book")
-                    read_book(stdscr,"C:\\ProgramData\\handbook.book")
+            if os.path.isfile("C:\\ProgramData\\handbook.book"):
+                read_book(stdscr,"C:\\ProgramData\\handbook.book")
+            else:
+                try:
+                    displaymsgnodelay(stdscr,["Downloading Handbook and Users Manual(7.0 KB)"])
+                    if not NT:
+                        urllib.request.urlretrieve("https://github.com/Enderbyte-Programs/Teleread/raw/main/handbook.book","handbook.book")
+                        read_book(stdscr,"handbook.book")
+                    else:
+                        urllib.request.urlretrieve("https://github.com/Enderbyte-Programs/Teleread/raw/main/handbook.book","C:\\ProgramData\\handbook.book")
+                        read_book(stdscr,"C:\\ProgramData\\handbook.book")
 
-            except Exception as ex:
-                displayerror(stdscr,ex,"Failed to get handbook")
+                except Exception as ex:
+                    displayerror(stdscr,ex,"Failed to get handbook")
 
         elif op == 0:
             #cursestransition(stdscr,read_book,(stdscr,cursesinput(stdscr,"What is the file path of the book you want to read?").strip()),1)
