@@ -503,7 +503,7 @@ def load_colours():
     curses.init_pair(6,curses.COLOR_WHITE,curses.COLOR_BLACK) 
 
 def displayerror(stdscr,e,msg: str):
-    displaymsg(stdscr,["An error occured",msg,str(e])
+    displaymsg(stdscr,["An error occured",msg,str(e)])
 
 def main(stdscr):
     global LIBRARY
