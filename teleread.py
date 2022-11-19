@@ -9,7 +9,7 @@ import json
 from platform import system
 import shlex
 import urllib.request
-import traceback
+
 if system() == "Windows":
     NT = True#User is on Windows, change loc
     os.system("")
@@ -503,8 +503,7 @@ def load_colours():
     curses.init_pair(6,curses.COLOR_WHITE,curses.COLOR_BLACK) 
 
 def displayerror(stdscr,e,msg: str):
-    esx = traceback.format_exception(e)
-    displaymsg(stdscr,["An error occured",msg]+[e for e in esx])
+    displaymsg(stdscr,["An error occured",msg,str(e])
 
 def main(stdscr):
     global LIBRARY

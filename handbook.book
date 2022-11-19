@@ -113,6 +113,7 @@ $register Changelogs
 +
 +   -Fixed bug with installer system on windows
 +   -Selecting help will no longer download a new version every time
++   -Fixed bug in display_exception()
 +
 --v0.4.1
 +Type: Small feature addition
